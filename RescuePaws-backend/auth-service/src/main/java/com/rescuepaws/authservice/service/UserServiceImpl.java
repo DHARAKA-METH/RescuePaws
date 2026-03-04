@@ -6,8 +6,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserServiceImpl implements UserService{
-    private  final UserRepository userRepository;
+public class UserServiceImpl implements UserService {
+
+    private final UserRepository userRepository;
     private  final PasswordEncoder passwordEncoder;
 
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
@@ -32,7 +33,7 @@ public class UserServiceImpl implements UserService{
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
 
-          //Compare raw password with encrypted password
+        //Compare raw password with encrypted password
         if (!passwordEncoder.matches(password,user.getPassword())) {
             throw new RuntimeException("Incorrect password");
         }
