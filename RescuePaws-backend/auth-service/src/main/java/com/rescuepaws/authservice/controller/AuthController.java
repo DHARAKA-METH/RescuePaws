@@ -1,9 +1,7 @@
 package com.rescuepaws.authservice.controller;
-
-
+import com.rescuepaws.authservice.dto.ApiResponse;
 import com.rescuepaws.authservice.model.User;
 import com.rescuepaws.authservice.service.UserService;
-import com.rescuepaws.authservice.service.UserServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,18 +18,24 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody User user){
-        return ResponseEntity.ok(userService.register(user));
+    public ResponseEntity<ApiResponse<User>> register(@RequestBody User user) {
+
+            User newUser = userService.register(user);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Register successful", newUser));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody User loginRequest){
+    public ResponseEntity<ApiResponse<User>> login(@RequestBody User loginRequest){
 
-        userService.login(
+        User user = userService.login(
                 loginRequest.getEmail(),
-                loginRequest.getPassword()
-        );
+                loginRequest.getPassword(),
+                loginRequest.getRole()
 
-        return ResponseEntity.ok("Login successful");
+        );
+            return ResponseEntity.ok(
+                    new ApiResponse<User>(true, "Login successful!", user)
+            );
+
     }
 }
