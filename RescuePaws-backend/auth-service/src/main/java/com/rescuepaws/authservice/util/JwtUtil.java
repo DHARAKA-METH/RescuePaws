@@ -24,8 +24,9 @@ public class JwtUtil {
     private long expirationTime;
 
     // Generate token with user email and role
-    public String generateToken(String email) {
-        Map<String, Object> claims = new HashMap<>();
+    public String generateToken(String email,String role) {
+        Map<String,Object> claims = new HashMap<>();
+        claims.put("role", role);
         return buildToken(claims, email);
     }
 

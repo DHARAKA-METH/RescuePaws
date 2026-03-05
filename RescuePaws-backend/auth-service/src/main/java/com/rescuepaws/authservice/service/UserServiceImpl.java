@@ -39,7 +39,7 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         User newUser = userRepository.save(user);
-        String jwtToken = jwtUtil.generateToken(newUser.getEmail());
+        String jwtToken = jwtUtil.generateToken(newUser.getEmail(),newUser.getRole());
         return new LoginRegisterResponse(newUser, jwtToken);
     }
 
@@ -58,7 +58,7 @@ public class UserServiceImpl implements UserService {
         }
 
         // generate jwt token
-        String jwtToken = jwtUtil.generateToken(user.getEmail());
+        String jwtToken = jwtUtil.generateToken(user.getEmail(),user.getRole());
 
 
         return new LoginRegisterResponse(user, jwtToken);
