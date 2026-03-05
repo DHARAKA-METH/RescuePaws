@@ -1,5 +1,7 @@
 package com.rescuepaws.authservice.controller;
+
 import com.rescuepaws.authservice.dto.ApiResponse;
+import com.rescuepaws.authservice.dto.LoginRegisterResponse;
 import com.rescuepaws.authservice.model.User;
 import com.rescuepaws.authservice.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final UserService userService;
+
     public AuthController(UserService userService) {
         this.userService = userService;
     }
@@ -20,22 +23,22 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<User>> register(@RequestBody User user) {
 
-            User newUser = userService.register(user);
-            return ResponseEntity.ok(new ApiResponse<>(true, "Register successful", newUser));
+        LoginRegisterResponse newUser = userService.register(user);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Register successful", newUser.getUser(), newUser.getJwtToken()));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<User>> login(@RequestBody User loginRequest){
+    public ResponseEntity<ApiResponse<User>> login(@RequestBody User loginRequest) {
 
-        User user = userService.login(
+        LoginRegisterResponse user = userService.login(
                 loginRequest.getEmail(),
                 loginRequest.getPassword(),
                 loginRequest.getRole()
 
         );
-            return ResponseEntity.ok(
-                    new ApiResponse<User>(true, "Login successful!", user)
-            );
+        return ResponseEntity.ok(
+                new ApiResponse<User>(true, "Login successful!", user.getUser(), user.getJwtToken())
+        );
 
     }
 }
