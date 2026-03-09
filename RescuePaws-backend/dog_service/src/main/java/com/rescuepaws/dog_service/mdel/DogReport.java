@@ -1,4 +1,5 @@
 package com.rescuepaws.dog_service.mdel;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,5 +19,6 @@ public class DogReport {
 
     @ManyToOne
     @JoinColumn(name = "dog_id")
+    @JsonBackReference
     private Dog dog;
 }

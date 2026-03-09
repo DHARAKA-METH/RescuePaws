@@ -1,4 +1,5 @@
 package com.rescuepaws.dog_service.service;
+
 import com.rescuepaws.dog_service.exception.ExceptionHandle;
 import com.rescuepaws.dog_service.exception.ResourceNotFoundException;
 import com.rescuepaws.dog_service.mdel.Dog;
@@ -7,6 +8,7 @@ import com.rescuepaws.dog_service.mdel.DogReport;
 import com.rescuepaws.dog_service.repositories.DogImagesRepository;
 import com.rescuepaws.dog_service.repositories.DogReportsRepository;
 import com.rescuepaws.dog_service.repositories.DogRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,6 +35,7 @@ public class DogService {
         this.cloudinaryService = cloudinaryService;
     }
 
+    @Transactional
     public Dog reportDog(Dog dog, List<MultipartFile> images, Long userId, String reporterName) {
 
         try {
@@ -77,7 +80,11 @@ public class DogService {
             report.setReporterName(reporterName);
 
             dogReportsRepository.save(report);
+            List<DogReport> reports = new ArrayList<>();
+            reports.add(report);
+            savedDog.setReports(reports);
 
+          
             return savedDog;
 
         } catch (Exception e) {
@@ -95,7 +102,7 @@ public class DogService {
 
         } catch (Exception e) {
 
-            throw new ExceptionHandle("Something went wrong"+ e.getMessage());
+            throw new ExceptionHandle("Something went wrong" + e.getMessage());
         }
     }
 
