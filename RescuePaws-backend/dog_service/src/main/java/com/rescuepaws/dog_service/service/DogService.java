@@ -1,5 +1,6 @@
 package com.rescuepaws.dog_service.service;
 
+import com.rescuepaws.dog_service.dto.DogRequest;
 import com.rescuepaws.dog_service.exception.ExceptionHandle;
 import com.rescuepaws.dog_service.exception.ResourceNotFoundException;
 import com.rescuepaws.dog_service.mdel.Dog;
@@ -91,6 +92,61 @@ public class DogService {
 
             throw new ExceptionHandle("Failed to report dog: " + e.getMessage());
         }
+    }
+
+
+    @Transactional
+    public Dog updateDog(Long dogId, DogRequest request,
+                         List<MultipartFile> images,
+                         Long userId) {
+
+        Dog dog = dogRepository.findById(dogId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Dog not found"));
+
+        // Check if user is reporter
+        DogReport report = dogReportsRepository.findByDogIdAndUserId(dogId, userId)
+                .orElseThrow(() ->
+                        new ExceptionHandle("You can update only your report"));
+
+        // Update fields
+        dog.setType(request.getType());
+        dog.setDescription(request.getDescription());
+        dog.setLatitude(request.getLatitude());
+        dog.setLongitude(request.getLongitude());
+
+        Dog updatedDog = dogRepository.save(dog);
+
+        // Upload new images if provided
+        if (images != null && !images.isEmpty()) {
+
+            List<DogImage> dogImages = new ArrayList<>();
+
+            for (MultipartFile file : images) {
+
+                if (file.isEmpty()) continue;
+
+                try {
+
+                    String imageUrl = cloudinaryService.uploadImage(file);
+
+                    DogImage image = new DogImage();
+                    image.setDog(updatedDog);
+                    image.setImageUrl(imageUrl);
+
+                    dogImagesRepository.save(image);
+                    dogImages.add(image);
+
+                } catch (Exception e) {
+
+                    throw new ExceptionHandle("Image upload failed: " + file.getOriginalFilename());
+                }
+            }
+
+            updatedDog.getImages().addAll(dogImages);
+        }
+
+        return updatedDog;
     }
 
 
