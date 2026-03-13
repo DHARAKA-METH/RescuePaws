@@ -29,4 +29,22 @@ public class CloudinaryService {
 
         }
     }
+
+
+    // delete umage by public id
+
+    public void deleteImage(String publicId)throws Exception {
+        cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+    }
+
+    // Helper to extract public ID from URL
+     public String extractPublicId(String imageUrl) {
+         // Example: https://res.cloudinary.com/demo/image/upload/v1234567890/sample.jpg
+         // Returns: sample
+         String[] parts = imageUrl.split("/");
+         String filename = parts[parts.length - 1];
+         return filename.substring(0, filename.lastIndexOf('.'));
+
+     }
+
 }

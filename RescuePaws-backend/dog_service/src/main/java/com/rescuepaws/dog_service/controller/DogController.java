@@ -2,6 +2,7 @@ package com.rescuepaws.dog_service.controller;
 
 import com.rescuepaws.dog_service.dto.ApiResponse;
 import com.rescuepaws.dog_service.dto.DogRequest;
+import com.rescuepaws.dog_service.exception.ExceptionHandle;
 import com.rescuepaws.dog_service.mdel.Dog;
 import com.rescuepaws.dog_service.service.DogService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -57,6 +58,44 @@ public class DogController {
            ApiResponse<Dog> response = new ApiResponse<>(false, "Failed to create dog: " + e.getMessage(), null);
            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<String>> deleteDog(
+            @PathVariable Long id,
+            HttpServletRequest request
+    ) {
+
+        try {
+
+            Long userId = Long.valueOf(request.getAttribute("userId").toString());
+
+            Dog dog = dogService.getDogById(id);
+
+            // Check if logged user reported this dog
+            if (!dogService.isReportedByUser(id, userId)) {
+
+                ApiResponse<String> response =
+                        new ApiResponse<>(false, "You can delete only your own report", null);
+
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
+
+            // Delete dog
+            dogService.removeDog(id);
+
+            ApiResponse<String> response =
+                    new ApiResponse<>(true, "Dog deleted successfully", null);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+
+        } catch (Exception e) {
+
+            ApiResponse<String> response =
+                    new ApiResponse<>(false, "Something went wrong! " + e.getMessage(), null);
+
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 

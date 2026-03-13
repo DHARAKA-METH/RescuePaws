@@ -84,7 +84,7 @@ public class DogService {
             reports.add(report);
             savedDog.setReports(reports);
 
-          
+
             return savedDog;
 
         } catch (Exception e) {
@@ -107,11 +107,56 @@ public class DogService {
     }
 
 
+    @Transactional
     public Dog getDogById(Long id) {
 
         return dogRepository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Dog not found with id: " + id));
+    }
+
+    public void removeDog(Long dogId) {
+        try {
+            Dog dog = dogRepository.findById(dogId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Dog not found with id: " + dogId));
+
+
+            // Delete all images from Cloudinary and database
+            List<DogImage> images = dogImagesRepository.findByDogId(dogId);
+            if (images != null && !images.isEmpty()) {
+                for (DogImage image : images) {
+                    try {
+                        String publicId = cloudinaryService.extractPublicId(image.getImageUrl());
+                        cloudinaryService.deleteImage(publicId);
+                    } catch (Exception e) {
+                        System.out.println("Failed to delete image from Cloudinary: " + image.getImageUrl());
+                    }
+                }
+                dogImagesRepository.deleteAll(images);
+            }
+
+            // Delete all reports
+            List<DogReport> reports = dogReportsRepository.findByDogId(dogId);
+            if (reports != null && !reports.isEmpty()) {
+                dogReportsRepository.deleteAll(reports);
+            }
+
+            // delete dog
+            dogRepository.delete(dog);
+
+        } catch (Exception e) {
+            throw new ExceptionHandle("Failed to delete dog with id : " + dogId + e.getMessage());
+        }
+    }
+
+    public boolean isReportedByUser(Long dogId, Long userId) {
+        List<DogReport> reports = dogReportsRepository.findByDogId(dogId);
+        for (DogReport report : reports) {
+            if (report.getUserId().equals(userId)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
