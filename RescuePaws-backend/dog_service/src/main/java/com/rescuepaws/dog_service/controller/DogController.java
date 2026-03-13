@@ -132,27 +132,17 @@ public class DogController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<String>> deleteDog(
-            @PathVariable Long id,
+            @PathVariable("id") Long dogId,
             HttpServletRequest request
     ) {
 
         try {
 
             Long userId = Long.valueOf(request.getAttribute("userId").toString());
-
-            Dog dog = dogService.getDogById(id);
-
-            // Check if logged user reported this dog
-            if (!dogService.isReportedByUser(id, userId)) {
-
-                ApiResponse<String> response =
-                        new ApiResponse<>(false, "You can delete only your own report", null);
-
-                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
-            }
+            String role = (String) request.getAttribute("role");
 
             // Delete dog
-            dogService.removeDog(id);
+            dogService.removeDog(dogId,userId,role);
 
             ApiResponse<String> response =
                     new ApiResponse<>(true, "Dog deleted successfully", null);

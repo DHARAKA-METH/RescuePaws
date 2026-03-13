@@ -11,9 +11,7 @@ import com.rescuepaws.dog_service.repositories.DogImagesRepository;
 import com.rescuepaws.dog_service.repositories.DogPickupRepository;
 import com.rescuepaws.dog_service.repositories.DogReportsRepository;
 import com.rescuepaws.dog_service.repositories.DogRepository;
-import jakarta.persistence.Entity;
 import jakarta.transaction.Transactional;
-import lombok.Data;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -203,10 +201,24 @@ public class DogService {
     }
 
 
-    public void removeDog(Long dogId) {
+    @Transactional
+    public void removeDog(Long dogId, Long userId, String role) {
         try {
             Dog dog = dogRepository.findById(dogId)
                     .orElseThrow(() -> new ResourceNotFoundException("Dog not found with id: " + dogId));
+
+
+            if (!(role.equals("admin"))) {
+                // Check if logged user reported this dog
+                if (!isReportedByUser(dogId, userId)) {
+
+                    throw new ExceptionHandle("You can delete only your own report");
+
+                }
+            }
+
+            //delete pickUp dog
+            dogPickupRepository.deleteByDogId(dogId);
 
 
             // Delete all images from Cloudinary and database

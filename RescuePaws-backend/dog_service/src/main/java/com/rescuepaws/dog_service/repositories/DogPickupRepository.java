@@ -8,5 +8,6 @@ import java.util.Optional;
 public interface DogPickupRepository extends JpaRepository<DogPickup,Long> {
 
     Optional<DogPickupRepository> findByDogId(Long dogId);
+    void deleteByDogId(Long dogId);
 
 }
