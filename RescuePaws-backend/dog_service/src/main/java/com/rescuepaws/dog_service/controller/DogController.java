@@ -3,7 +3,6 @@ package com.rescuepaws.dog_service.controller;
 import com.rescuepaws.dog_service.dto.ApiResponse;
 import com.rescuepaws.dog_service.dto.DogRequest;
 import com.rescuepaws.dog_service.mdel.Dog;
-import com.rescuepaws.dog_service.mdel.DogPickup;
 import com.rescuepaws.dog_service.service.DogService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -166,35 +165,6 @@ public class DogController {
 
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    @PostMapping("/{id}/pickup")
-    public ResponseEntity<ApiResponse<DogPickup>> pickDog(
-            @PathVariable("id") Long dogId,
-            HttpServletRequest request
-
-    ) {
-        try {
-            Long userId = Long.valueOf(request.getAttribute("userId").toString());
-            String username = request.getAttribute("username").toString();
-
-            System.out.println("----------------------------"+userId+"-----"+username+"dog id = "+dogId);
-
-            DogPickup pickup = dogService.pickUpDog(dogId, userId, username);
-
-            ApiResponse<DogPickup> response = new ApiResponse<>(true, "Dog picked successfully", pickup);
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ApiResponse<>(false,
-                            "Pickup failed: " + e.getMessage(),
-                            null));
-
-
-        }
-
-
     }
 
 
