@@ -5,14 +5,19 @@ import com.rescuepaws.dog_service.exception.ExceptionHandle;
 import com.rescuepaws.dog_service.exception.ResourceNotFoundException;
 import com.rescuepaws.dog_service.mdel.Dog;
 import com.rescuepaws.dog_service.mdel.DogImage;
+import com.rescuepaws.dog_service.mdel.DogPickup;
 import com.rescuepaws.dog_service.mdel.DogReport;
 import com.rescuepaws.dog_service.repositories.DogImagesRepository;
+import com.rescuepaws.dog_service.repositories.DogPickupRepository;
 import com.rescuepaws.dog_service.repositories.DogReportsRepository;
 import com.rescuepaws.dog_service.repositories.DogRepository;
+import jakarta.persistence.Entity;
 import jakarta.transaction.Transactional;
+import lombok.Data;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,17 +28,19 @@ public class DogService {
     private final DogImagesRepository dogImagesRepository;
     private final DogReportsRepository dogReportsRepository;
     private final CloudinaryService cloudinaryService;
+    private final DogPickupRepository dogPickupRepository;
 
     public DogService(
             DogRepository dogRepository,
             DogImagesRepository dogImagesRepository,
             DogReportsRepository dogReportsRepository,
-            CloudinaryService cloudinaryService
-    ) {
+            CloudinaryService cloudinaryService,
+            DogPickupRepository dogPickupRepository) {
         this.dogRepository = dogRepository;
         this.dogImagesRepository = dogImagesRepository;
         this.dogReportsRepository = dogReportsRepository;
         this.cloudinaryService = cloudinaryService;
+        this.dogPickupRepository = dogPickupRepository;
     }
 
     @Transactional
@@ -92,6 +99,30 @@ public class DogService {
 
             throw new ExceptionHandle("Failed to report dog: " + e.getMessage());
         }
+    }
+
+    @Transactional
+    public DogPickup pickUpDog(Long dogId, Long userId, String username) {
+
+        Dog dog = dogRepository.findById(dogId)
+                .orElseThrow(() -> new ResourceNotFoundException("Dog not found"));
+
+        // Check if already picked
+        if (dogPickupRepository.findByDogId(dogId).isPresent()) {
+            throw new ExceptionHandle("Dog already picked");
+        }
+
+        dog.setStatus("RESCUED");
+        dogRepository.save(dog);
+
+        DogPickup pickup = new DogPickup();
+        pickup.setDog(dog);
+        pickup.setUserId(userId);
+        pickup.setUsername(username);
+        pickup.setPickedAt(LocalDateTime.now());
+
+        return dogPickupRepository.save(pickup);
+
     }
 
 
@@ -170,6 +201,7 @@ public class DogService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Dog not found with id: " + id));
     }
+
 
     public void removeDog(Long dogId) {
         try {
