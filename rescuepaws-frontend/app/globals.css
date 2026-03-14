@@ -1,0 +1,118 @@
+/* 1️⃣ Tailwind must be FIRST */
+@import "tailwindcss";
+
+/* 2️⃣ Theme tokens */
+@theme {
+  /* Colors */
+  --color-navy: #1E3A5F;
+  --color-navy-dark: #0F2340;
+  --color-navy-light: #ECF2F8;
+
+  --color-surface: #F4F7FA;
+  --color-card: #FFFFFF;
+  --color-border: #D0DDE8;
+
+  --color-ink-primary: #1A2E42;
+  --color-ink-secondary: #6B8499;
+  --color-ink-hint: #A0B4C2;
+
+  --color-reported-bg: #FDF2EA;
+  --color-reported-border: #E8B48A;
+  --color-reported-text: #9A5A2A;
+
+  --color-rescued-bg: #E8F5EE;
+  --color-rescued-border: #80CCA4;
+  --color-rescued-text: #1E6B47;
+
+  --color-adopted-bg: #E8F1FB;
+  --color-adopted-border: #80AADE;
+  --color-adopted-text: #1A4F8A;
+
+  /* Fonts (controlled via next/font variables) */
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
+}
+
+/* 3️⃣ Base styles */
+@layer base {
+  html {
+    font-size: 15px;
+  }
+
+  body {
+    @apply bg-surface text-ink-primary font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+  }
+}
+
+/* 4️⃣ Components */
+@layer components {
+
+  .btn-primary {
+    @apply bg-navy text-white rounded-xl px-5 py-2.5 text-sm
+           font-medium hover:bg-navy-dark active:scale-95
+           transition-all duration-150 shadow-md;
+  }
+
+  .btn-outline {
+    @apply border border-navy text-navy rounded-xl px-5
+           py-2.5 text-sm font-medium hover:bg-navy-light
+           active:scale-95 transition-all duration-150;
+  }
+
+  .card {
+    @apply bg-card rounded-2xl border border-border p-5 shadow-sm;
+  }
+
+  .form-input {
+    @apply w-full bg-card border border-border rounded-xl
+           px-3 py-2.5 text-sm text-ink-primary
+           placeholder-ink-hint focus:outline-none
+           focus:ring-2 focus:ring-navy/20
+           focus:border-navy transition-all duration-150;
+  }
+
+  .badge-reported {
+    @apply bg-reported-bg text-reported-text
+           border border-reported-border
+           text-xs font-medium px-2.5 py-0.5
+           rounded-full inline-block;
+  }
+
+  .badge-rescued {
+    @apply bg-rescued-bg text-rescued-text
+           border border-rescued-border
+           text-xs font-medium px-2.5 py-0.5
+           rounded-full inline-block;
+  }
+
+  .badge-adopted {
+    @apply bg-adopted-bg text-adopted-text
+           border border-adopted-border
+           text-xs font-medium px-2.5 py-0.5
+           rounded-full inline-block;
+  }
+}
+
+/* 5️⃣ Animations */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease both;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease both;
+}
