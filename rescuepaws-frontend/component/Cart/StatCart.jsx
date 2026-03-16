@@ -2,9 +2,9 @@ import React from 'react'
 
 const StatCart = ({ value, label, color  }) => {
     return (
-        <div className="w-[150px] h-[80px] bg-white/10 border-white/20 rounded-xl flex flex-col justify-center items-center">
-            {value}
-            <span className={`text-xs font-semibold ${color}`}>
+        <div className={`bg-white/10 border border-white/20 rounded-xl p-5 flex flex-col gap-1 ${color}`}>
+            <span className='text-2xl font-extrabold'>{value}</span>
+            <span className={`text-xs font-semibold text-white/60`}>
                 {label}
             </span>
         </div>

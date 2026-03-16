@@ -1,13 +1,14 @@
 import NavBar from "@/component/NavBar";
 import StatCart from "@/component/Cart/StatCart";
+import DogCard from "@/component/Cart/DogCard";
+import { Steps } from "@/constants/Stepts";
 import Link from "next/link";
 
-
-const SAMPLE_DOGS = [
-  { id: '1', type: 'Golden Retriever', description: 'Found near railway station. Friendly, no collar.', location: 'Colombo Fort', status: 'REPORTED', createdAt: new Date(Date.now() - 7200000).toISOString() },
-  { id: '2', type: 'Mixed Breed', description: 'Rescued from Negombo beach. Healthy and calm.', location: 'Negombo Beach', status: 'RESCUED', createdAt: new Date(Date.now() - 86400000).toISOString() },
-  { id: '3', type: 'Labrador', description: 'Adopted by a loving family in Kandy.', location: 'Kandy City', status: 'ADOPTED', createdAt: new Date(Date.now() - 259200000).toISOString() },
-]
+const dogs = [
+  { id: "1", name: "Golden Retriever", location: "Colombo Fort", status: "Reported", time: "2 hrs ago" },
+  { id: "2", name: "Mixed Breed", location: "Negombo Beach", status: "Rescued", time: "1 day ago" },
+  { id: "3", name: "Labrador", location: "Kandy City", status: "Adopted", time: "3 days ago" },
+];
 
 
 export default function HomePage() {
@@ -69,15 +70,70 @@ export default function HomePage() {
               <StatCart value="356" label="Rescued" color="text-rescued-text" />
               <StatCart value="356" label="Reported" color="text-reported-text" />
               <StatCart value="356" label="Volunteers" color="text-adopted-accent" />
-
             </div>
-
-
           </div>
-
 
         </div>
       </div>
+
+      <div className="flex justify-center bg-white text-navy min-h-screen md:flex flex-col items-center px-6 md:px-12 py-16 gap-4">
+        <h2 className="text-ink-primary text-xl font-semibold mb:mr-[450px] mt-[-20px] mb-2.5">How it works</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+          {Steps.map((step, i) => (
+            <div
+              key={step.number}
+              className="card flex flex-col w-[180px] h-[250px] gap-4 animate-slide-up"
+              style={{ animationDelay: `${i * 80}ms` }}
+            >
+              {/* Step number pill */}
+              <div className="w-8 h-8 rounded-full bg-navy-light border border-border
+                                flex items-center justify-center
+                                text-ink-secondary text-xs font-semibold flex-shrink-0">
+                {step.number}
+              </div>
+
+              <span className="text-3xl leading-none">{step.emoji}</span>
+
+              <div>
+                <p className="text-ink-primary font-semibold text-sm mb-1">
+                  {step.title}
+                </p>
+                <p className="text-ink-secondary text-xs leading-relaxed">
+                  {step.desc}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="w-auto max-w-3xl mt-12">
+          <div className="flex flex-col md:flex-row  items-center justify-between md:gap-10 gap-3 mb-5">
+            <h2 className="text-ink-primary text-xl font-semibold">
+              Latest reported dogs
+            </h2>
+            <Link
+              href="/dogs"
+              className="text-navy text-sm font-medium hover:text-navy-dark
+                         transition-colors flex items-center gap-1"
+            >
+              View all →
+            </Link>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {dogs.map((dog, i) => (
+              <div
+                key={dog.id}
+                className="animate-slide-up"
+                style={{ animationDelay: `${i * 80}ms` }}
+              >
+                <DogCard {...dog} />
+              </div>
+            ))}
+          </div>
+
+        </div>
+      </div>
+
     </section>
-  )
+  );
 }
