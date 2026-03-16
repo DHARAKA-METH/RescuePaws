@@ -11,3 +11,4 @@ export const TagCart =[
   {value: 'Adopted', label: 'Adopted'},
   {value: 'Rescued', label: 'Rescued'},
 ]
+
