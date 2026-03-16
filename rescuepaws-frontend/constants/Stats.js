@@ -5,8 +5,9 @@ export const STATS = [
   { value: '2,104', label: 'Volunteers',  color: 'text-adopted-accent' },
 ]
 
-export const STEPS = [
-  { num:'1', icon:'📍', title:'Report a Dog',   desc:'Spot a stray? Submit a report with location and photo in seconds.' },
-  { num:'2', icon:'🔍', title:'Admin Reviews',  desc:'Our team verifies and dispatches a rescue team nearby.' },
-  { num:'3', icon:'🏠', title:'Rescue & Update',desc:'Dog is rescued. Status is updated. Community is notified.' },
+export const TagCart =[
+  {value: 'All', label: 'All'},
+  {value: 'Reported', label: 'Reported'},
+  {value: 'Adopted', label: 'Adopted'},
+  {value: 'Rescued', label: 'Rescued'},
 ]
