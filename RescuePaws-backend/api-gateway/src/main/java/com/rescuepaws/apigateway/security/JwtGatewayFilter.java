@@ -1,7 +1,6 @@
 package com.rescuepaws.apigateway.security;
 import com.rescuepaws.apigateway.util.JwtUtil;
 import io.jsonwebtoken.Claims;
-import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.http.HttpStatus;
@@ -27,12 +26,12 @@ public class JwtGatewayFilter implements GlobalFilter {
         if (path.startsWith("/auth")) {
             return chain.filter(exchange);
         }
-        String authHeader = exchange.getRequest()
-                .getHeaders()
-                .getFirst("Authorization");
+
+        // Get Authorization header
+        String authHeader = exchange.getRequest().getHeaders().getFirst("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-
+            System.out.println("Missing or invalid Authorization header");
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
@@ -40,7 +39,7 @@ public class JwtGatewayFilter implements GlobalFilter {
         String token = authHeader.substring(7);
 
         try {
-
+            //  Validate JWT
             Claims claims = jwtUtil.validateToken(token);
 
             String userId = claims.get("id").toString();
@@ -48,26 +47,25 @@ public class JwtGatewayFilter implements GlobalFilter {
             String email = claims.getSubject();
             String role = claims.get("role").toString();
 
-            // Add user data as headers (instead of request.setAttribute)
+            //  Add user info as prefixed headers
             var mutatedRequest = exchange.getRequest().mutate()
-                    .header("userId", userId)
-                    .header("username", username)
-                    .header("email", email)
-                    .header("role", role)
+                    .header("X-UserId", userId)
+                    .header("X-Username", username)
+                    .header("X-Email", email)
+                    .header("X-Role", role)
                     .build();
 
+            //  Log headers for debugging
+            mutatedRequest.getHeaders().forEach((k, v) -> System.out.println(k + " : " + v));
+
+
+            //  Forward request to downstream service
             return chain.filter(exchange.mutate().request(mutatedRequest).build());
 
-
         } catch (Exception e) {
-
+            System.out.println("JWT validation failed: " + e.getMessage());
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
     }
 }
-
-
-
-
-

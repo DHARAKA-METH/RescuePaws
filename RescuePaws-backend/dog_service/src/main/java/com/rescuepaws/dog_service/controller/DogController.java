@@ -5,6 +5,7 @@ import com.rescuepaws.dog_service.dto.DogRequest;
 import com.rescuepaws.dog_service.mdel.Dog;
 import com.rescuepaws.dog_service.mdel.DogPickup;
 import com.rescuepaws.dog_service.service.DogService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,172 +19,155 @@ import java.util.List;
 public class DogController {
 
     private final DogService dogService;
+    private final ObjectMapper objectMapper;
 
     public DogController(DogService dogService) {
         this.dogService = dogService;
+        this.objectMapper = new ObjectMapper();
     }
 
+    // ------------------ Report a dog ------------------
     @PostMapping(consumes = {"multipart/form-data"})
     public ResponseEntity<ApiResponse<Dog>> reportDog(
-            HttpServletRequest requestHeader,
-            @RequestPart("dog") String dogJson, // JSON as string
-            @RequestPart(value = "images", required = false) List<MultipartFile> images
-    ) {
-
-        try {
-            // Convert JSON string to DogRequest object
-            DogRequest request = new com.fasterxml.jackson.databind.ObjectMapper().readValue(dogJson, DogRequest.class);
-
-            Long userId = Long.valueOf(requestHeader.getAttribute("userId").toString());
-            String username = (String) requestHeader.getAttribute("username");
-
-//            System.out.println("User images" + images);
-//            System.out.println("Dog Request: " + request);
-
-            // Convert DogRequest → Dog
-            Dog dog = new Dog();
-            dog.setType(request.getType());
-            dog.setDescription(request.getDescription());
-            dog.setLatitude(request.getLatitude());
-            dog.setLongitude(request.getLongitude());
-
-
-            Dog newDog = dogService.reportDog(dog, images, userId, username);
-
-
-            ApiResponse<Dog> response = new ApiResponse<>(true, "Dog created successfully!", newDog);
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
-        } catch (Exception e) {
-            e.printStackTrace();
-            ApiResponse<Dog> response = new ApiResponse<>(false, "Failed to create dog: " + e.getMessage(), null);
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        }
-    }
-
-
-    @PutMapping(value = "/{id}", consumes = {"multipart/form-data"})
-    public ResponseEntity<ApiResponse<Dog>> updateDog(
-            @PathVariable Long id,
-            HttpServletRequest requestHeader,
+            HttpServletRequest request,
             @RequestPart("dog") String dogJson,
             @RequestPart(value = "images", required = false) List<MultipartFile> images
     ) {
-
         try {
+            // Parse JSON
+            DogRequest requestDto = objectMapper.readValue(dogJson, DogRequest.class);
 
-            DogRequest request =
-                    new com.fasterxml.jackson.databind.ObjectMapper()
-                            .readValue(dogJson, DogRequest.class);
+            // Get user info from headers
+            String userIdHeader = request.getHeader("X-UserId");
+            String username = request.getHeader("X-Username");
 
-            Long userId = Long.valueOf(requestHeader.getAttribute("userId").toString());
+            if (userIdHeader == null || username == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new ApiResponse<>(false, "Missing user headers from API Gateway", null));
+            }
 
-            Dog updatedDog = dogService.updateDog(id, request, images, userId);
+            Long userId = Long.parseLong(userIdHeader);
 
-            ApiResponse<Dog> response =
-                    new ApiResponse<>(true, "Dog updated successfully!", updatedDog);
+            // Convert DogRequest → Dog entity
+            Dog dog = new Dog();
+            dog.setType(requestDto.getType());
+            dog.setDescription(requestDto.getDescription());
+            dog.setLatitude(requestDto.getLatitude());
+            dog.setLongitude(requestDto.getLongitude());
 
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            Dog newDog = dogService.reportDog(dog, images, userId, username);
+
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new ApiResponse<>(true, "Dog created successfully!", newDog));
 
         } catch (Exception e) {
-
-            ApiResponse<Dog> response =
-                    new ApiResponse<>(false, "Update failed: " + e.getMessage(), null);
-
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(false, "Failed to create dog: " + e.getMessage(), null));
         }
     }
 
+    // ------------------ Update dog ------------------
+    @PutMapping(value = "/{id}", consumes = {"multipart/form-data"})
+    public ResponseEntity<ApiResponse<Dog>> updateDog(
+            @PathVariable Long id,
+            HttpServletRequest request,
+            @RequestPart("dog") String dogJson,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images
+    ) {
+        try {
+            DogRequest requestDto = objectMapper.readValue(dogJson, DogRequest.class);
 
+            String userIdHeader = request.getHeader("X-UserId");
+            if (userIdHeader == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new ApiResponse<>(false, "Missing user headers from API Gateway", null));
+            }
+            Long userId = Long.parseLong(userIdHeader);
+
+            Dog updatedDog = dogService.updateDog(id, requestDto, images, userId);
+
+            return ResponseEntity.ok(new ApiResponse<>(true, "Dog updated successfully!", updatedDog));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(false, "Update failed: " + e.getMessage(), null));
+        }
+    }
+
+    // ------------------ Get all dogs ------------------
     @GetMapping
     public ResponseEntity<ApiResponse<List<Dog>>> getAllDogs() {
-
         try {
-
             List<Dog> dogs = dogService.getAllDogs();
-
-            ApiResponse<List<Dog>> response =
-                    new ApiResponse<>(true, "Dogs fetched successfully", dogs);
-
-            return new ResponseEntity<>(response, HttpStatus.OK);
-
+            return ResponseEntity.ok(new ApiResponse<>(true, "Dogs fetched successfully", dogs));
         } catch (Exception e) {
-
-            ApiResponse<List<Dog>> response =
-                    new ApiResponse<>(false, "Something went wrong: " + e.getMessage(), null);
-
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(false, "Something went wrong: " + e.getMessage(), null));
         }
     }
 
+    // ------------------ Get dog by ID ------------------
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<Dog>> getDogById(@PathVariable Long id) {
         try {
-
             Dog dog = dogService.getDogById(id);
-            ApiResponse<Dog> response = new ApiResponse<>(true, "Dog retrieved successfully!", dog);
-
-            return new ResponseEntity<>(response, HttpStatus.OK);
-
+            return ResponseEntity.ok(new ApiResponse<>(true, "Dog retrieved successfully!", dog));
         } catch (Exception e) {
-            ApiResponse<Dog> response = new ApiResponse<>(false, "Failed to get Dog: " + e.getMessage(), null);
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse<>(false, "Failed to get Dog: " + e.getMessage(), null));
         }
     }
 
+    // ------------------ Delete dog ------------------
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<String>> deleteDog(
             @PathVariable("id") Long dogId,
             HttpServletRequest request
     ) {
-
         try {
+            String userIdHeader = request.getHeader("X-UserId");
+            String role = request.getHeader("X-Role");
 
-            Long userId = Long.valueOf(request.getAttribute("userId").toString());
-            String role = (String) request.getAttribute("role");
+            if (userIdHeader == null || role == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new ApiResponse<>(false, "Missing user headers from API Gateway", null));
+            }
 
-            // Delete dog
-            dogService.removeDog(dogId,userId,role);
+            Long userId = Long.parseLong(userIdHeader);
 
-            ApiResponse<String> response =
-                    new ApiResponse<>(true, "Dog deleted successfully", null);
+            dogService.removeDog(dogId, userId, role);
 
-            return new ResponseEntity<>(response, HttpStatus.OK);
-
+            return ResponseEntity.ok(new ApiResponse<>(true, "Dog deleted successfully", null));
         } catch (Exception e) {
-
-            ApiResponse<String> response =
-                    new ApiResponse<>(false, "Something went wrong! " + e.getMessage(), null);
-
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(false, "Something went wrong! " + e.getMessage(), null));
         }
     }
 
+    // ------------------ Pick up dog ------------------
     @PostMapping("/{id}/pickup")
     public ResponseEntity<ApiResponse<DogPickup>> pickDog(
             @PathVariable("id") Long dogId,
             HttpServletRequest request
-
     ) {
         try {
-            Long userId = Long.valueOf(request.getAttribute("userId").toString());
-            String username = request.getAttribute("username").toString();
+            String userIdHeader = request.getHeader("X-UserId");
+            String username = request.getHeader("X-Username");
+
+            if (userIdHeader == null || username == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new ApiResponse<>(false, "Missing user headers from API Gateway", null));
+            }
+
+            Long userId = Long.parseLong(userIdHeader);
 
             DogPickup pickup = dogService.pickUpDog(dogId, userId, username);
 
-            ApiResponse<DogPickup> response = new ApiResponse<>(true, "Dog picked successfully", pickup);
-            return ResponseEntity.ok(response);
-
+            return ResponseEntity.ok(new ApiResponse<>(true, "Dog picked successfully", pickup));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ApiResponse<>(false,
-                            "Pickup failed: " + e.getMessage(),
-                            null));
-
-
+                    .body(new ApiResponse<>(false, "Pickup failed: " + e.getMessage(), null));
         }
-
-
     }
-
-
 }
