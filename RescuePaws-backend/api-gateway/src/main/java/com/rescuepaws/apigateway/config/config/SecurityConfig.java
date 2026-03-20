@@ -15,14 +15,14 @@ public class SecurityConfig {
         this.jwtGatewayFilter = jwtGatewayFilter;
     }
 
-    @Bean
-    public RouteLocator routes(RouteLocatorBuilder builder) {
-        return builder.routes()
-                .route("auth-service", r -> r.path("/api/auth/")
-                        .uri("http://localhost:8081"))
-                .route("dog-service", r -> r.path("/api/dogs/**")
-                        .uri("http://localhost:8082"))
-                .build();
-    }
+//    @Bean
+//    public RouteLocator routes(RouteLocatorBuilder builder) {
+//        return builder.routes()
+//                .route("auth-service", r -> r.path("/api/auth/")
+//                        .uri("http://localhost:8081"))
+//                .route("dog-service", r -> r.path("/api/dogs/**")
+//                        .uri("http://localhost:8082"))
+//                .build();
+//    }
 
 }
