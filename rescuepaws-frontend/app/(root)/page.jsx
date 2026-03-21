@@ -1,17 +1,19 @@
+"use client";
+
 import NavBar from "@/component/NavBar";
 import StatCart from "@/component/Cart/StatCart";
 import DogCard from "@/component/Cart/DogCard";
+import DogCardSkeleton from "@/component/Cart/DogCardSkeleton";
 import { Steps } from "@/constants/Stepts";
 import Link from "next/link";
+import { useDogs } from "@/hooks/useDogs";
 
-const dogs = [
-  { id: "1", name: "Golden Retriever", location: "Colombo Fort", status: "Reported", time: "2 hrs ago" },
-  { id: "2", name: "Mixed Breed", location: "Negombo Beach", status: "Rescued", time: "1 day ago" },
-  { id: "3", name: "Labrador", location: "Kandy City", status: "Adopted", time: "3 days ago" },
-];
 
 
 export default function HomePage() {
+    const { data: dogs, isLoading } = useDogs();
+    console.log("dogs  -----------",dogs);
+    
   return (
     <section >
       <NavBar />
@@ -119,17 +121,25 @@ export default function HomePage() {
             </Link>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {dogs.map((dog, i) => (
-              <div
-                key={dog.id}
-                className="animate-slide-up"
-                style={{ animationDelay: `${i * 80}ms` }}
-              >
-                <DogCard {...dog} />
-              </div>
-            ))}
+<div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+  {isLoading
+    ? Array.from({ length: 6 }).map((_, i) => (
+        <DogCardSkeleton key={i} />
+      ))
+    : dogs?.data
+        ?.slice()
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 6)
+        .map((dog, i) => (
+          <div
+            key={dog.id}
+            className="animate-slide-up"
+            style={{ animationDelay: `${i * 80}ms` }}
+          >
+            <DogCard {...dog} />
           </div>
+        ))}
+</div>
 
         </div>
       </div>

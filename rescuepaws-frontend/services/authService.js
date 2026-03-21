@@ -9,6 +9,9 @@ export const loginUser = async (data) => {
 
   const result = await res.json();
 
+  console.log("loged data ------",result);
+  
+
   if (!res.ok) {
     throw new Error(result.message || "Login failed");
   }
@@ -17,8 +20,6 @@ export const loginUser = async (data) => {
 };
 
 export const registerUser = async (data) => {
-
-      console.log("-----------data--------------------",data);
 
   const res = await fetch("http://localhost:8080/auth/register", {
     method: "POST",
@@ -29,7 +30,6 @@ export const registerUser = async (data) => {
   });
 
   const result = await res.json();
-  console.log("-------------------------------",result);
 
   if (!res.ok) {
     throw new Error(result.message || "Register failed");

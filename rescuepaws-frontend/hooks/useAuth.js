@@ -9,7 +9,7 @@ export const useLogin = () => {
 
     onSuccess: (data) => {
       // save token
-      localStorage.setItem("token", data.token);
+      localStorage.setItem("token", data.JwtToken);
 
       toast.success("Login successful 🎉");
 
@@ -28,7 +28,8 @@ export const useRegister = () => {
   return useMutation({
     mutationFn: registerUser,
 
-    onSuccess: () => {
+    onSuccess: (data) => {
+      localStorage.setItem("token", data.JwtToken);
       toast.success("Registration successful 🎉");
       window.location.href = "/";
     },
