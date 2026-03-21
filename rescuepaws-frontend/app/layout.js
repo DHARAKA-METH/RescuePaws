@@ -1,5 +1,10 @@
 import { Geist, Geist_Mono ,Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "react-hot-toast";
+import ClientWrapper from "@/component/ClientWrapper";
+
+const queryClient = new QueryClient();
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,7 +32,11 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${display.variable} antialiased` }
       >
+        <ClientWrapper>
         {children}
+         <Toaster />
+         </ClientWrapper>
+        
       </body>
     </html>
   );
