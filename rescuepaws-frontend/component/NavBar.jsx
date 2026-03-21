@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 const navLinks = [
@@ -13,6 +13,20 @@ const navLinks = [
 export default function Navbar() {
   const [active, setActive] = useState("Home");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // ✅ check login status
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
+  }, []);
+
+  // ✅ logout function
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsLoggedIn(false);
+    window.location.href = "/login";
+  };
 
   return (
     <header className="w-full border-b border-gray-200 bg-white">
@@ -35,11 +49,10 @@ export default function Navbar() {
               <Link
                 href={link.href}
                 onClick={() => setActive(link.label)}
-                className={`transition-colors ${
-                  active === link.label
-                    ? "text-navy-600"
-                    : "text-gray-600 hover:text-navy-600"
-                }`}
+                className={`transition-colors ${active === link.label
+                  ? "text-navy-600"
+                  : "text-gray-600 hover:text-navy-600"
+                  }`}
               >
                 {link.label}
               </Link>
@@ -47,21 +60,40 @@ export default function Navbar() {
           ))}
         </ul>
 
-        {/* Desktop Buttons */}
-        <div className="hidden md:flex items-center gap-3">
-          <Link
-            href="/login"
-            className="text-sm text-gray-600 hover:text-navy-600"
-          >
-            Login
-          </Link>
+        {/* Desktop Right Side */}
+        <div className="hidden md:flex items-center gap-4">
+          {!isLoggedIn ? (
+            <>
+              <Link
+                href="/login"
+                className="text-sm font-medium text-gray-600 px-3 py-2 rounded-lg hover:bg-gray-100 hover:text-navy-600 transition"
+              >
+                Login
+              </Link>
 
-          <Link
-            href="/register"
-            className="bg-navy-600 text-navy-dark text-sm px-4 py-2 rounded-lg hover:bg-navy-700 transition"
-          >
-            Register
-          </Link>
+              <Link
+                href="/register"
+                className="bg-navy-600 text-gray-600 text-sm font-medium px-4 py-2 rounded-lg shadow-sm hover:bg-navy-700 transition"
+              >
+                Register
+              </Link>
+            </>
+          ) : (
+            <div className="flex items-center gap-3">
+              {/* Profile Icon */}
+              {/* <div className="w-9 h-9 bg-navy-600 rounded-full flex items-center justify-center text-gray-600 text-sm font-semibold shadow-sm">
+                U
+              </div> */}
+
+              {/* Logout */}
+              <button
+                onClick={handleLogout}
+                className="text-sm font-medium bg-navy text-white px-3 py-2 rounded-lg hover:bg-red-50 hover:text-red-500 transition"
+              >
+                Logout
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Mobile Hamburger */}
@@ -93,19 +125,39 @@ export default function Navbar() {
           ))}
 
           <div className="flex flex-col gap-2 pt-2">
-            <Link
-              href="/login"
-              className="text-sm text-gray-600 hover:text-navy-600"
-            >
-              Login
-            </Link>
+            {!isLoggedIn ? (
+              <>
+                <Link
+                  href="/login"
+                  className="text-sm font-medium text-gray-700 px-4 py-2 rounded-lg border border-gray-200 text-center hover:bg-gray-100 transition"
+                >
+                  Login
+                </Link>
 
-            <Link
-              href="/register"
-              className="bg-navy-600 text-white text-sm px-4 py-2 rounded-lg text-center"
-            >
-              Register
-            </Link>
+                <Link
+                  href="/register"
+                  className="bg-navy-600 text-white text-sm font-medium px-4 py-2 rounded-lg text-center hover:bg-navy-700 transition"
+                >
+                  Register
+                </Link>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-navy-600 rounded-full flex items-center justify-center text-white text-sm">
+                    U
+                  </div>
+                  <span className="text-sm text-gray-700">Profile</span>
+                </div>
+
+                <button
+                  onClick={handleLogout}
+                  className="text-sm text-red-500 text-left"
+                >
+                  Logout
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
