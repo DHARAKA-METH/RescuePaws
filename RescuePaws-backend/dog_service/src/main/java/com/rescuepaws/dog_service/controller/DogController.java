@@ -119,6 +119,40 @@ public class DogController {
         }
     }
 
+
+
+    // ------------------ Delete dog ------------------
+    @PutMapping("/{id}/status")
+    public ResponseEntity<ApiResponse<Dog>> updateDogStatus(
+            @PathVariable("id") Long dogId,
+            @RequestPart("dog") String dogJson,
+            HttpServletRequest request
+    ) {
+        try {
+            String userIdHeader = request.getHeader("X-UserId");
+            String role = request.getHeader("X-Role");
+            DogRequest requestDto = objectMapper.readValue(dogJson, DogRequest.class);
+
+            if (userIdHeader == null || role == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new ApiResponse<>(false, "Missing user headers from API Gateway", null));
+            }
+
+            Long userId = Long.parseLong(userIdHeader);
+
+            Dog updatedStatus =dogService.updateDogStatus(dogId, userId, role,requestDto);
+
+            return ResponseEntity.ok(new ApiResponse<>(true, "Dog Status Update successfully", updatedStatus));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(false, "Dog Status Update Failed! " + e.getMessage(), null));
+        }
+    }
+
+
+
+
+
     // ------------------ Delete dog ------------------
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<String>> deleteDog(
@@ -141,7 +175,7 @@ public class DogController {
             return ResponseEntity.ok(new ApiResponse<>(true, "Dog deleted successfully", null));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse<>(false, "Something went wrong! " + e.getMessage(), null));
+                    .body(new ApiResponse<>(false, "Something went wrong Dog deleted Failed! " + e.getMessage(), null));
         }
     }
 

@@ -14,7 +14,7 @@ public class DogRequest {
     private String description;
     private Double latitude;
     private Double longitude;
-//    private String status;
+    private String status;
 //    private Long userId;
 //    private String reporterName;
 //    private List<String> imageUrls;

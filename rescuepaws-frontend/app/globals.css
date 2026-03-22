@@ -21,12 +21,12 @@
   --color-reported-text: #9A5A2A;
 
   --color-rescued-bg: #E8F5EE;
-  --color-rescued-border: #80CCA4;
+  --color-rescued-border: #40FF40;
   --color-rescued-text: #1E6B47;
 
-  --color-adopted-bg: #E8F1FB;
-  --color-adopted-border: #80AADE;
-  --color-adopted-text: #1A4F8A;
+  --color-adopted-bg: #F56E6E;
+  --color-adopted-border: #AD2626;
+  --color-adopted-text: #FFFFFF;
 
   /* Fonts (controlled via next/font variables) */
   --font-sans: var(--font-inter);

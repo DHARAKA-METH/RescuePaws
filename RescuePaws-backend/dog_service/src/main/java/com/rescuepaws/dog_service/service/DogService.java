@@ -110,7 +110,7 @@ public class DogService {
             throw new ExceptionHandle("Dog already picked");
         }
 
-        dog.setStatus("RESCUED");
+        dog.setStatus("PICKED_UP");
         dogRepository.save(dog);
 
         DogPickup pickup = new DogPickup();
@@ -175,6 +175,31 @@ public class DogService {
             updatedDog.getImages().addAll(dogImages);
         }
 
+        return updatedDog;
+    }
+
+
+    @Transactional
+    public Dog updateDogStatus(Long dogId, Long userId, String role, DogRequest request) {
+
+        Dog dog = dogRepository.findById(dogId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Dog not found"));
+
+        // Check if user is reporter
+        if (!(role.equals("admin"))) {
+            // Check if logged user reported this dog
+            if (!isReportedByUser(dogId, userId)) {
+
+                throw new ExceptionHandle("You can Update only your own report");
+
+            }
+        }
+
+        // Update fields
+        dog.setStatus(request.getStatus());
+
+        Dog updatedDog = dogRepository.save(dog);
         return updatedDog;
     }
 

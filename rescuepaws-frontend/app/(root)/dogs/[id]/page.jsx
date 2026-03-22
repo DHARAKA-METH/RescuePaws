@@ -5,13 +5,15 @@ import Link from "next/link";
 import ImageCart from "@/component/Cart/ImageCart";
 import { useParams } from "next/navigation";
 import { useDogs } from "@/hooks/useDogs";
+import toast from "react-hot-toast";
+import { deleteDog, pickupDog, updateDogStatus } from "@/services/dogService";
 
 const statusOptions = ["REPORTED", "RESCUED"];
 
 const statusBadge = {
-  Reported: "badge-reported",
-  Rescued: "badge-rescued",
-  Adopted: "badge-adopted",
+  REPORTED: "badge-reported",
+  RESCUED: "badge-rescued",
+  PICKED_UP: "badge-adopted",
 };
 
 export default function DogDetailPage() {
@@ -40,9 +42,48 @@ export default function DogDetailPage() {
   const [saved, setSaved] = useState(false);
   const [deleted, setDeleted] = useState(false);
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    try {
+      await updateDogStatus(dog.id, status);
+      toast.success("Dog status updated successfully 🐶");
+      window.location.reload();
+    } catch (error) {
+      toast.error(error.message || "Failed to update dog status");
+    }
+
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+  };
+
+  const handleDelete = async (id) => {
+    const confirm = window.confirm(
+      "Are you sure you want to delete this report? ",
+    );
+    if (!confirm) return;
+
+    try {
+      await deleteDog(id);
+      toast.success("Dog deleted successfully 🐶");
+      setDeleted(true);
+    } catch (error) {
+      toast.error(error.message || "Failed to delete dog");
+    }
+  };
+
+  const handlePickup = async (id) => {
+    const confirm = window.confirm(
+      "Are you sure you want to request pickup? 🚐",
+    );
+
+    if (!confirm) return;
+
+    try {
+      await pickupDog(id);
+      toast.success("Pickup requested successfully 🚐");
+      window.location.reload();
+    } catch (error) {
+      toast.error(error.message || "Failed to request pickup");
+    }
   };
 
   if (deleted) {
@@ -88,7 +129,11 @@ export default function DogDetailPage() {
             {/* Dog image card */}
             <div className="card overflow-hidden p-0 animate-slide-up">
               <div className="bg-navy-light h-52 flex items-center justify-center relative">
-                {dog.image ? <ImageCart image={dog.image} /> : <span className="text-8xl">{dog.emoji}</span>}
+                {dog.image ? (
+                  <ImageCart image={dog.image} />
+                ) : (
+                  <span className="text-8xl">{dog.emoji}</span>
+                )}
                 <span
                   className={`absolute bottom-3 right-3 ${statusBadge[dog.status] ?? "badge-reported"} text-xs`}
                 >
@@ -99,15 +144,21 @@ export default function DogDetailPage() {
               <div className="p-5 space-y-3">
                 {/* Title row */}
                 <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="text-ink-primary text-xl font-semibold">{dog.name}</h1>
-                  <span className={statusBadge[dog.status] ?? "badge-reported"}>{dog.status}</span>
+                  <h1 className="text-ink-primary text-xl font-semibold">
+                    {dog.name}
+                  </h1>
+                  <span className={statusBadge[dog.status] ?? "badge-reported"}>
+                    {dog.status}
+                  </span>
                 </div>
 
                 <p className="text-ink-hint text-xs">
                   Dog ID: #{dog.id} · {dog.status} · {dog.reportedAt}
                 </p>
 
-                <p className="text-navy text-sm leading-relaxed">{dog.description}</p>
+                <p className="text-navy text-sm leading-relaxed">
+                  {dog.description}
+                </p>
 
                 {/* Info grid */}
                 <div className="grid grid-cols-3 gap-2 pt-1">
@@ -117,14 +168,23 @@ export default function DogDetailPage() {
                     { label: "Location", value: dog.location },
                     { label: "Reported by", value: dog.reportedBy },
                     { label: "Reported", value: dog.reportedAt },
-                    { label: "Coordinates", value: dog.coordinates ? `${dog.coordinates.lat}, ${dog.coordinates.lng}` : "Unknown" },
+                    {
+                      label: "Coordinates",
+                      value: dog.coordinates
+                        ? `${dog.coordinates.lat}, ${dog.coordinates.lng}`
+                        : "Unknown",
+                    },
                   ].map(({ label, value }) => (
                     <div
                       key={label}
                       className="bg-surface rounded-xl border border-border px-3 py-2.5 space-y-0.5"
                     >
-                      <p className="text-ink-hint text-[10px] font-medium uppercase tracking-wide">{label}</p>
-                      <p className="text-ink-primary text-xs font-semibold leading-snug">{value}</p>
+                      <p className="text-ink-hint text-[10px] font-medium uppercase tracking-wide">
+                        {label}
+                      </p>
+                      <p className="text-ink-primary text-xs font-semibold leading-snug">
+                        {value}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -132,41 +192,103 @@ export default function DogDetailPage() {
             </div>
 
             {/* Location map card */}
-            <div className="card overflow-hidden p-0 animate-slide-up" style={{ animationDelay: "80ms" }}>
+            <div
+              className="card overflow-hidden p-0 animate-slide-up"
+              style={{ animationDelay: "80ms" }}
+            >
               {/* Header */}
               <div className="flex items-center justify-between px-4 py-3 border-b border-border">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-red-400" />
-                  <span className="text-ink-primary text-sm font-semibold">Location map</span>
+                  <span className="text-ink-primary text-sm font-semibold">
+                    Location map
+                  </span>
                 </div>
-                <span className="text-ink-secondary text-xs">{dog.location}, LK</span>
+                <span className="text-ink-secondary text-xs">
+                  {dog.location}, LK
+                </span>
               </div>
 
               {/* Static map */}
               <div className="relative h-44 bg-[#dce8f0] overflow-hidden">
                 {/* Grid lines */}
-                <svg className="absolute inset-0 w-full h-full opacity-30" xmlns="http://www.w3.org/2000/svg">
+                <svg
+                  className="absolute inset-0 w-full h-full opacity-30"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
                   <defs>
-                    <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
-                      <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#7aaabf" strokeWidth="0.5" />
+                    <pattern
+                      id="grid"
+                      width="30"
+                      height="30"
+                      patternUnits="userSpaceOnUse"
+                    >
+                      <path
+                        d="M 30 0 L 0 0 0 30"
+                        fill="none"
+                        stroke="#7aaabf"
+                        strokeWidth="0.5"
+                      />
                     </pattern>
                   </defs>
                   <rect width="100%" height="100%" fill="url(#grid)" />
                 </svg>
 
                 {/* Roads */}
-                <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
-                  <line x1="0" y1="50%" x2="100%" y2="50%" stroke="#b8cdd8" strokeWidth="8" />
-                  <line x1="40%" y1="0" x2="40%" y2="100%" stroke="#b8cdd8" strokeWidth="6" />
-                  <line x1="70%" y1="0" x2="70%" y2="100%" stroke="#c8d8e4" strokeWidth="4" />
-                  <line x1="0" y1="30%" x2="100%" y2="30%" stroke="#c8d8e4" strokeWidth="3" />
-                  <line x1="0" y1="75%" x2="100%" y2="75%" stroke="#c8d8e4" strokeWidth="3" />
+                <svg
+                  className="absolute inset-0 w-full h-full"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <line
+                    x1="0"
+                    y1="50%"
+                    x2="100%"
+                    y2="50%"
+                    stroke="#b8cdd8"
+                    strokeWidth="8"
+                  />
+                  <line
+                    x1="40%"
+                    y1="0"
+                    x2="40%"
+                    y2="100%"
+                    stroke="#b8cdd8"
+                    strokeWidth="6"
+                  />
+                  <line
+                    x1="70%"
+                    y1="0"
+                    x2="70%"
+                    y2="100%"
+                    stroke="#c8d8e4"
+                    strokeWidth="4"
+                  />
+                  <line
+                    x1="0"
+                    y1="30%"
+                    x2="100%"
+                    y2="30%"
+                    stroke="#c8d8e4"
+                    strokeWidth="3"
+                  />
+                  <line
+                    x1="0"
+                    y1="75%"
+                    x2="100%"
+                    y2="75%"
+                    stroke="#c8d8e4"
+                    strokeWidth="3"
+                  />
                 </svg>
 
                 {/* Pin */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full">
                   <div className="w-8 h-8 bg-navy rounded-full border-2 border-white shadow-lg flex items-center justify-center">
-                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <svg
+                      className="w-4 h-4 text-white"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
                       <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
                     </svg>
                   </div>
@@ -174,18 +296,30 @@ export default function DogDetailPage() {
 
                 {/* Coordinates label */}
                 <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-white/80 backdrop-blur-sm rounded-lg px-2.5 py-1 text-[10px] text-ink-secondary font-medium border border-border whitespace-nowrap">
-                  {dog.coordinates ? `${dog.coordinates.lat}, ${dog.coordinates.lng}` : "Unknown"}
+                  {dog.coordinates
+                    ? `${dog.coordinates.lat}, ${dog.coordinates.lng}`
+                    : "Unknown"}
                 </div>
               </div>
 
               {/* Footer — Directions button */}
               <div className="px-4 py-3 border-t border-border flex items-center justify-between gap-3">
                 <div className="flex items-center gap-1.5">
-                  <svg className="w-3.5 h-3.5 text-ink-hint" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                  <svg
+                    className="w-3.5 h-3.5 text-ink-hint"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    viewBox="0 0 24 24"
+                  >
                     <circle cx="12" cy="12" r="10" />
                     <polyline points="12 6 12 12 16 14" />
                   </svg>
-                  <span className="text-ink-hint text-xs">Opens Google Maps</span>
+                  <span className="text-ink-hint text-xs">
+                    Opens Google Maps
+                  </span>
                 </div>
 
                 <button
@@ -198,7 +332,11 @@ export default function DogDetailPage() {
                   }}
                   className="btn-primary flex items-center gap-2 text-xs px-4 py-2"
                 >
-                  <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="w-3.5 h-3.5"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path d="M21.71 11.29l-9-9a1 1 0 0 0-1.42 0l-9 9a1 1 0 0 0 0 1.42l9 9a1 1 0 0 0 1.42 0l9-9a1 1 0 0 0 0-1.42zM14 14.5V12h-4v3H8v-4a1 1 0 0 1 1-1h5V7.5l3.5 3.5-3.5 3.5z" />
                   </svg>
                   Get Directions
@@ -210,9 +348,15 @@ export default function DogDetailPage() {
           {/* Right column */}
           <div className="space-y-4">
             {/* Actions */}
-            <div className="card space-y-2.5 animate-slide-up" style={{ animationDelay: "40ms" }}>
+            <div
+              className="card space-y-2.5 animate-slide-up"
+              style={{ animationDelay: "40ms" }}
+            >
               <p className="text-ink-primary text-sm font-semibold">Actions</p>
-              <button className="btn-primary w-full flex items-center justify-center gap-2">
+              <button
+                className="btn-primary w-full flex items-center justify-center gap-2"
+                onClick={() => handlePickup(dog.id)}
+              >
                 <span>🚐</span> Request Pickup
               </button>
               <button className="btn-outline w-full flex items-center justify-center gap-2">
@@ -221,31 +365,44 @@ export default function DogDetailPage() {
             </div>
 
             {/* Admin actions */}
-            <div className="card space-y-3 animate-slide-up" style={{ animationDelay: "80ms" }}>
-              <p className="text-ink-primary text-sm font-semibold">Admin actions</p>
+            <div
+              className="card space-y-3 animate-slide-up"
+              style={{ animationDelay: "80ms" }}
+            >
+              <p className="text-ink-primary text-sm font-semibold">
+                Admin actions
+              </p>
 
               <div>
-                <p className="text-ink-hint text-[10px] font-medium uppercase tracking-wide mb-1.5">Update status</p>
+                <p className="text-ink-hint text-[10px] font-medium uppercase tracking-wide mb-1.5">
+                  Update status
+                </p>
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
                   className="form-input text-xs uppercase font-semibold"
                 >
                   {statusOptions.map((opt) => (
-                    <option key={opt} value={opt}>{opt}</option>
+                    <option key={opt} value={opt}>
+                      {opt}
+                    </option>
                   ))}
                 </select>
               </div>
 
               <button
                 onClick={handleSave}
-                className="w-full bg-rescued-text text-white rounded-xl px-5 py-2.5 text-sm font-medium hover:opacity-90 active:scale-95 transition-all duration-150 shadow-sm"
+                disabled={dog.status === "PICKED_UP"}
+                className={`w-full rounded-xl px-5 py-2.5 text-sm font-medium transition-all duration-150 shadow-sm
+      ${dog.status === "PICKED_UP" ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-rescued-text text-white hover:opacity-90 active:scale-95"}`}
               >
                 {saved ? "✓ Saved!" : "Save Status"}
               </button>
 
               <button
-                onClick={() => setDeleted(true)}
+                onClick={() => {
+                  handleDelete(dog.id);
+                }}
                 className="w-full bg-reported-bg text-reported-text border border-reported-border rounded-xl px-5 py-2.5 text-sm font-medium hover:bg-red-100 active:scale-95 transition-all duration-150"
               >
                 Delete Report
