@@ -6,7 +6,7 @@ import Link from "next/link";
 const navLinks = [
   { label: "Home", href: "/" },
   { label: "Dogs", href: "/dogs" },
-  { label: "Report Dog", href: "/report-dog" },
+  { label: "Report Dog", href: "/dogs/report-dog" },
   { label: "About", href: "/about" },
 ];
 
@@ -15,13 +15,14 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // ✅ check login status
+  //  check login status
   useEffect(() => {
     const token = localStorage.getItem("token");
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoggedIn(!!token);
   }, []);
 
-  // ✅ logout function
+  //  logout function
   const handleLogout = () => {
     localStorage.removeItem("token");
     setIsLoggedIn(false);

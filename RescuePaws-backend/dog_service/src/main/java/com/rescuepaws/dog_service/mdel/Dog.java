@@ -24,6 +24,8 @@ public class Dog {
     private Double latitude;
     private Double longitude;
     private String status; // e.g., REPORTED, RESCUED, PICKED_UP
+    private String age;
+    private String gender;
     @Column(nullable = false, updatable = false)
     private LocalDateTime created_at;
 //    @Column(nullable = false)

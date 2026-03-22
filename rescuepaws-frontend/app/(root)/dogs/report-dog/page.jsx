@@ -1,8 +1,10 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { ageOptions, genderOptions, statusInfo, submissionGuide } from "@/constants/Other";
+import Navbar from "@/component/NavBar";
 
 
 
@@ -27,6 +29,7 @@ export default function ReportDogPage() {
     /* Auto-detect GPS on mount */
     useEffect(() => {
         if (!navigator.geolocation) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setLocError("Geolocation not supported.");
             return;
         }
@@ -77,29 +80,7 @@ export default function ReportDogPage() {
 
     return (
         <div className="min-h-screen bg-surface">
-
-            {/* ── Nav ── */}
-            <nav className="bg-white border-b border-border px-5 py-3 flex items-center justify-between sticky top-0 z-10">
-                <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 bg-navy rounded-lg flex items-center justify-center">
-                        <span className="text-white text-xs">🐾</span>
-                    </div>
-                    <span className="text-ink-primary font-semibold text-sm">RescuePaws</span>
-                </div>
-                <div className="hidden sm:flex items-center gap-1">
-                    {["Home", "Dogs", "Report Dog", "About"].map((item) => (
-                        <Link key={item} href={item === "Home" ? "/" : `/${item.toLowerCase().replace(" ", "-")}`}
-                            className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-colors
-                ${item === "Report Dog"
-                                    ? "bg-navy-light text-navy font-semibold"
-                                    : "text-ink-secondary hover:text-ink-primary hover:bg-surface"}`}>
-                            {item}
-                        </Link>
-                    ))}
-                </div>
-                <div className="w-8 h-8 rounded-full bg-navy flex items-center justify-center
-                        text-white text-xs font-semibold">AS</div>
-            </nav>
+            <Navbar/>
 
             {/* ── Hero banner ── */}
             <div className="bg-navy px-6 py-6">

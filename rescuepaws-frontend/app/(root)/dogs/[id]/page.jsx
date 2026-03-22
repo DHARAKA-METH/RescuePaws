@@ -7,6 +7,7 @@ import { useParams } from "next/navigation";
 import { useDogs } from "@/hooks/useDogs";
 import toast from "react-hot-toast";
 import { deleteDog, pickupDog, updateDogStatus } from "@/services/dogService";
+import { timeAgo } from "@/util/timeAgo";
 
 const statusOptions = ["REPORTED", "RESCUED"];
 
@@ -21,13 +22,13 @@ export default function DogDetailPage() {
   const { data: dogs, isLoading } = useDogs();
 
   const filteredDog = dogs?.data?.find((dog) => dog.id === Number(id));
-
   const dog = {
     id: filteredDog?.id,
     name: filteredDog?.type,
     status: filteredDog?.status,
     reportedAt: filteredDog?.created_at,
     reportedBy: filteredDog?.reports?.[0]?.reporterName || "Anonymous",
+    gender: filteredDog?.gender || "Unknown",
     description: filteredDog?.description,
     location: filteredDog?.place,
     coordinates: {
@@ -163,17 +164,18 @@ export default function DogDetailPage() {
                 {/* Info grid */}
                 <div className="grid grid-cols-3 gap-2 pt-1">
                   {[
-                    { label: "Breed", value: dog.breed },
+                    { label: "Age", value: dog.age || "Unknown" },
+                    { label: "Gender", value: dog.gender || "Unknown" },
                     { label: "Status", value: dog.status },
                     { label: "Location", value: dog.location },
                     { label: "Reported by", value: dog.reportedBy },
-                    { label: "Reported", value: dog.reportedAt },
-                    {
-                      label: "Coordinates",
-                      value: dog.coordinates
-                        ? `${dog.coordinates.lat}, ${dog.coordinates.lng}`
-                        : "Unknown",
-                    },
+                    { label: "Reported", value: timeAgo(dog.reportedAt) || dog.reportedAt },
+                    // {
+                    //   label: "Coordinates",
+                    //   value: dog.coordinates
+                    //     ? `${dog.coordinates.lat}, ${dog.coordinates.lng}`
+                    //     : "Unknown",
+                    // },
                   ].map(({ label, value }) => (
                     <div
                       key={label}
