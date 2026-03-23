@@ -76,3 +76,48 @@ export const pickupDog = async (id) => {
 
   return data;
 };
+
+export const reportDog = async ({
+  type,
+  description,
+  place,
+  latitude,
+  longitude,
+  status,
+  age,
+  gender,
+  images,
+}) => {
+  const formData = new FormData();
+
+  const dogPayload = {
+    type,
+    description,
+    place,
+    latitude,
+    longitude,
+    status,
+    age,
+    gender,
+  };
+
+  // Send JSON as STRING (important)
+  formData.append("dog", JSON.stringify(dogPayload));
+
+  // Send files
+  images.forEach((file) => {
+    formData.append("images", file);
+  });
+
+  const token = localStorage.getItem("token");
+
+  const res = await fetch("http://localhost:8080/api/dogs", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  return res.json();
+};

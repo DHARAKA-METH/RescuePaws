@@ -8,6 +8,7 @@ import { useDogs } from "@/hooks/useDogs";
 import toast from "react-hot-toast";
 import { deleteDog, pickupDog, updateDogStatus } from "@/services/dogService";
 import { timeAgo } from "@/util/timeAgo";
+import Loading from "@/component/Loading";
 
 const statusOptions = ["REPORTED", "RESCUED"];
 
@@ -28,6 +29,7 @@ export default function DogDetailPage() {
     status: filteredDog?.status,
     reportedAt: filteredDog?.created_at,
     reportedBy: filteredDog?.reports?.[0]?.reporterName || "Anonymous",
+    age: filteredDog?.age || "Unknown",
     gender: filteredDog?.gender || "Unknown",
     description: filteredDog?.description,
     location: filteredDog?.place,
@@ -44,6 +46,15 @@ export default function DogDetailPage() {
   const [deleted, setDeleted] = useState(false);
 
   const handleSave = async () => {
+
+    
+  if (deleted) {
+    return (
+      <Loading message="Deleting dog..." />
+    );
+  }
+
+
     try {
       await updateDogStatus(dog.id, status);
       toast.success("Dog status updated successfully 🐶");
@@ -63,9 +74,13 @@ export default function DogDetailPage() {
     if (!confirm) return;
 
     try {
-      await deleteDog(id);
-      toast.success("Dog deleted successfully 🐶");
       setDeleted(true);
+      const res =  await deleteDog(id);
+      setDeleted(false);
+      if (!res.success) throw new Error(res.message);
+        toast.success("Dog deleted successfully 🐶");
+      
+      window.location.href = "/dogs";
     } catch (error) {
       toast.error(error.message || "Failed to delete dog");
     }
@@ -86,20 +101,6 @@ export default function DogDetailPage() {
       toast.error(error.message || "Failed to request pickup");
     }
   };
-
-  if (deleted) {
-    return (
-      <div className="min-h-screen bg-surface flex items-center justify-center">
-        <div className="card text-center p-10 max-w-sm mx-auto space-y-3">
-          <p className="text-2xl">🗑️</p>
-          <p className="text-ink-primary font-semibold">Report deleted.</p>
-          <Link href="/dogs" className="btn-primary inline-block mt-2">
-            Back to listings
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-surface px-4 py-6">

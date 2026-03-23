@@ -34,6 +34,7 @@ public class DogController {
             @RequestPart(value = "images", required = false) List<MultipartFile> images
     ) {
         try {
+            System.out.println(" =========================="+ images);
             // Parse JSON
             DogRequest requestDto = objectMapper.readValue(dogJson, DogRequest.class);
 
@@ -52,8 +53,11 @@ public class DogController {
             Dog dog = new Dog();
             dog.setType(requestDto.getType());
             dog.setDescription(requestDto.getDescription());
+            dog.setPlace(requestDto.getPlace());
             dog.setLatitude(requestDto.getLatitude());
             dog.setLongitude(requestDto.getLongitude());
+            dog.setAge(requestDto.getAge());
+            dog.setGender(requestDto.getGender());
 
             Dog newDog = dogService.reportDog(dog, images, userId, username);
 
