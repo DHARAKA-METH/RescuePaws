@@ -8,22 +8,17 @@ import { Steps } from "@/constants/Stepts";
 import Link from "next/link";
 import { useDogs } from "@/hooks/useDogs";
 
-
-
 export default function HomePage() {
-    const { data: dogs, isLoading } = useDogs();
-    console.log("dogs  -----------",dogs);
-    
+  const { data: dogs, isLoading } = useDogs();
+  console.log("dogs  -----------", dogs);
+
   return (
-    <section >
+    <section>
       <NavBar />
       <div className="bg-navy text-white min-h-screen flex items-center px-6 md:px-12 py-16">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-center gap-25 w-auto">
-
           {/* LEFT */}
           <div className="flex flex-col gap-6 flex-1">
-
-
             <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 w-fit">
               <span className="w-2 h-2 rounded-full bg-adopted-border"></span>
               <span className="text-xs font-semibold text-white/80">
@@ -48,9 +43,8 @@ export default function HomePage() {
 
             {/* Buttons */}
             <div className="flex flex-wrap gap-3 mt-2">
-
               <Link
-                href="/report-dog"
+                href="/dogs/report-dog"
                 className="bg-white text-navy font-bold text-sm px-6 py-3 rounded-lg hover:bg-gray-100 transition"
               >
                 Report <br /> a Dog
@@ -62,24 +56,36 @@ export default function HomePage() {
               >
                 View All Dogs →
               </Link>
-
             </div>
           </div>
           {/* right */}
           <div className="w-full md:w-[300px]">
             <div className="grid grid-cols-2 gap-4">
-              <StatCart value="356" label="Total Dogs" color="text-reported-text" />
+              <StatCart
+                value="356"
+                label="Total Dogs"
+                color="text-reported-text"
+              />
               <StatCart value="356" label="Rescued" color="text-rescued-text" />
-              <StatCart value="356" label="Reported" color="text-reported-text" />
-              <StatCart value="356" label="Volunteers" color="text-adopted-accent" />
+              <StatCart
+                value="356"
+                label="Reported"
+                color="text-reported-text"
+              />
+              <StatCart
+                value="356"
+                label="Volunteers"
+                color="text-adopted-accent"
+              />
             </div>
           </div>
-
         </div>
       </div>
 
       <div className="flex justify-center bg-white text-navy min-h-screen md:flex flex-col items-center px-6 md:px-12 py-16 gap-4">
-        <h2 className="text-ink-primary text-xl font-semibold mb:mr-[450px] mt-[-20px] mb-2.5">How it works</h2>
+        <h2 className="text-ink-primary text-xl font-semibold mb:mr-[450px] mt-[-20px] mb-2.5">
+          How it works
+        </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
           {Steps.map((step, i) => (
             <div
@@ -88,9 +94,11 @@ export default function HomePage() {
               style={{ animationDelay: `${i * 80}ms` }}
             >
               {/* Step number pill */}
-              <div className="w-8 h-8 rounded-full bg-navy-light border border-border
+              <div
+                className="w-8 h-8 rounded-full bg-navy-light border border-border
                                 flex items-center justify-center
-                                text-ink-secondary text-xs font-semibold flex-shrink-0">
+                                text-ink-secondary text-xs font-semibold flex-shrink-0"
+              >
                 {step.number}
               </div>
 
@@ -120,30 +128,28 @@ export default function HomePage() {
               View all →
             </Link>
           </div>
-          
-<div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-  {isLoading
-    ? Array.from({ length: 6 }).map((_, i) => (
-        <DogCardSkeleton key={i} />
-      ))
-    : dogs?.data
-        ?.slice()
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        .slice(0, 6)
-        .map((dog, i) => (
-          <div
-            key={dog.id}
-            className="animate-slide-up"
-            style={{ animationDelay: `${i * 80}ms` }}
-          >
-            <DogCard {...dog} />
-          </div>
-        ))}
-</div>
 
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {isLoading
+              ? Array.from({ length: 6 }).map((_, i) => (
+                  <DogCardSkeleton key={i} />
+                ))
+              : dogs?.data
+                  ?.slice()
+                  .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                  .slice(0, 6)
+                  .map((dog, i) => (
+                    <div
+                      key={dog.id}
+                      className="animate-slide-up"
+                      style={{ animationDelay: `${i * 80}ms` }}
+                    >
+                      <DogCard {...dog} />
+                    </div>
+                  ))}
+          </div>
         </div>
       </div>
-
     </section>
   );
 }

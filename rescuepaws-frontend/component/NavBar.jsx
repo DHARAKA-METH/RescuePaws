@@ -14,25 +14,43 @@ export default function Navbar() {
   const [active, setActive] = useState("Home");
   const [menuOpen, setMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
 
-  //  check login status
+  // Check login status
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIsLoggedIn(!!token);
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("token");
+      const storedUser = localStorage.getItem("user");
+
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setIsLoggedIn(!!token);
+
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+    }
   }, []);
 
-  //  logout function
+  // Logout function
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setIsLoggedIn(false);
+    setUser(null);
     window.location.href = "/login";
   };
+
+  // Calculate initials safely
+  const userInitials = user?.username
+    ? user.username
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+    : "U";
 
   return (
     <header className="w-full border-b border-gray-200 bg-white">
       <nav className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-
         {/* Brand */}
         <Link href="/" className="flex items-center gap-2">
           <div className="w-9 h-9 bg-navy-600 rounded-lg flex items-center justify-center text-white">
@@ -50,10 +68,11 @@ export default function Navbar() {
               <Link
                 href={link.href}
                 onClick={() => setActive(link.label)}
-                className={`transition-colors ${active === link.label
-                  ? "text-navy-600"
-                  : "text-gray-600 hover:text-navy-600"
-                  }`}
+                className={`transition-colors ${
+                  active === link.label
+                    ? "text-navy-600"
+                    : "text-gray-600 hover:text-navy-600"
+                }`}
               >
                 {link.label}
               </Link>
@@ -74,17 +93,25 @@ export default function Navbar() {
 
               <Link
                 href="/register"
-                className="bg-navy-600 text-gray-600 text-sm font-medium px-4 py-2 rounded-lg shadow-sm hover:bg-navy-700 transition"
+                className="bg-navy-600 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm hover:bg-navy-700 transition"
               >
                 Register
               </Link>
             </>
           ) : (
             <div className="flex items-center gap-3">
-              {/* Profile Icon */}
-              {/* <div className="w-9 h-9 bg-navy-600 rounded-full flex items-center justify-center text-gray-600 text-sm font-semibold shadow-sm">
-                U
-              </div> */}
+              {/* Profile Icon + Link to /profile */}
+              <Link href="/profile" className="flex items-center gap-2">
+                <div className="w-9 h-9 rounded-full bg-[#1E3A5F] flex items-center justify-center text-xs font-semibold text-white">
+                  {userInitials}
+                </div>
+                <div className="hidden md:flex flex-col">
+                  <p className="text-xs font-medium text-[#1A2E42]">
+                    {user?.username || "user"}
+                  </p>
+                  <p className="text-[10px] text-[#6B8499]">{user?.role || "User"}</p>
+                </div>
+              </Link>
 
               {/* Logout */}
               <button
@@ -144,16 +171,20 @@ export default function Navbar() {
               </>
             ) : (
               <>
-                <div className="flex items-center gap-2">
+                {/* Profile Link for Mobile */}
+                <Link
+                  href="/profile"
+                  className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-100"
+                >
                   <div className="w-8 h-8 bg-navy-600 rounded-full flex items-center justify-center text-white text-sm">
-                    U
+                    {userInitials}
                   </div>
-                  <span className="text-sm text-gray-700">Profile</span>
-                </div>
+                  <span className="text-sm text-gray-700">{user?.username || "User"}</span>
+                </Link>
 
                 <button
                   onClick={handleLogout}
-                  className="text-sm text-red-500 text-left"
+                  className="text-sm text-red-500 text-left px-4 py-2 hover:bg-red-50 rounded-lg transition"
                 >
                   Logout
                 </button>

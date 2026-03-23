@@ -10,6 +10,7 @@ export const useLogin = () => {
     onSuccess: (data) => {
       // save token
       localStorage.setItem("token", data.JwtToken);
+      localStorage.setItem("user", JSON.stringify(data.data));
 
       toast.success("Login successful 🎉");
 
@@ -30,6 +31,7 @@ export const useRegister = () => {
 
     onSuccess: (data) => {
       localStorage.setItem("token", data.JwtToken);
+      localStorage.setItem("user", JSON.stringify(data.User));
       toast.success("Registration successful 🎉");
       window.location.href = "/";
     },

@@ -48,4 +48,8 @@ public class Dog {
 
     @OneToMany(mappedBy = "dog", cascade = CascadeType.ALL)
     private List<DogReport> reports;
+
+    @OneToMany(mappedBy = "dog", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<DogPickup> pickups;
 }
