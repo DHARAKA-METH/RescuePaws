@@ -58,27 +58,32 @@ export default function HomePage() {
               </Link>
             </div>
           </div>
-          {/* right */}
-          <div className="w-full md:w-[300px]">
-            <div className="grid grid-cols-2 gap-4">
-              <StatCart
-                value="356"
-                label="Total Dogs"
-                color="text-reported-text"
-              />
-              <StatCart value="356" label="Rescued" color="text-rescued-text" />
-              <StatCart
-                value="356"
-                label="Reported"
-                color="text-reported-text"
-              />
-              <StatCart
-                value="356"
-                label="Volunteers"
-                color="text-adopted-accent"
-              />
-            </div>
-          </div>
+
+    {/* RIGHT - Stats */}
+    <div className="w-full md:w-[320px] mt-8 md:mt-0">
+      <div className="grid grid-cols-2 gap-4">
+        <StatCart
+          value={dogs?.data?.length || 0}
+          label="Total Dogs"
+          color="text-white"
+        />
+        <StatCart
+          value={dogs?.data?.filter((d) => d.status === "RESCUED").length|| 0}
+          label="Rescued"
+          color="text-green-400"
+        />
+        <StatCart
+          value={dogs?.data?.filter((d) => d.status === "REPORTED").length|| 0}
+          label="Reported"
+          color="text-yellow-300"
+        />
+        <StatCart
+          value={dogs?.data?.filter((d) => d.status === "PICKED_UP").length|| 0}
+          label="Picked Up"
+          color="text-blue-400"
+        />
+      </div>
+    </div>
         </div>
       </div>
 
