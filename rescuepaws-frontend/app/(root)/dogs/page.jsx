@@ -1,5 +1,6 @@
 "use client";
 import DogCard from "@/component/Cart/DogCard";
+import { DogCard2 } from "@/component/Cart/DogCard2";
 import DogCardSkeleton from "@/component/Cart/DogCardSkeleton";
 import Navbar from "@/component/NavBar";
 import { TagCart } from "@/constants/Stats";
@@ -51,7 +52,7 @@ const Page = () => {
                   className="animate-slide-up"
                   style={{ animationDelay: `${i * 80}ms` }}
                 >
-                  <DogCard {...dog} />
+                  <DogCard2 key={dog.id} dog={dog} />
                 </div>
               ))}
         </div>

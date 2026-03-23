@@ -2,7 +2,7 @@
 
 import NavBar from "@/component/NavBar";
 import StatCart from "@/component/Cart/StatCart";
-import DogCard from "@/component/Cart/DogCard";
+import { DogCard2 } from "@/component/Cart/DogCard2";
 import DogCardSkeleton from "@/component/Cart/DogCardSkeleton";
 import { Steps } from "@/constants/Stepts";
 import Link from "next/link";
@@ -59,31 +59,38 @@ export default function HomePage() {
             </div>
           </div>
 
-    {/* RIGHT - Stats */}
-    <div className="w-full md:w-[320px] mt-8 md:mt-0">
-      <div className="grid grid-cols-2 gap-4">
-        <StatCart
-          value={dogs?.data?.length || 0}
-          label="Total Dogs"
-          color="text-white"
-        />
-        <StatCart
-          value={dogs?.data?.filter((d) => d.status === "RESCUED").length|| 0}
-          label="Rescued"
-          color="text-green-400"
-        />
-        <StatCart
-          value={dogs?.data?.filter((d) => d.status === "REPORTED").length|| 0}
-          label="Reported"
-          color="text-yellow-300"
-        />
-        <StatCart
-          value={dogs?.data?.filter((d) => d.status === "PICKED_UP").length|| 0}
-          label="Picked Up"
-          color="text-blue-400"
-        />
-      </div>
-    </div>
+          {/* RIGHT - Stats */}
+          <div className="w-full md:w-[320px] mt-8 md:mt-0">
+            <div className="grid grid-cols-2 gap-4">
+              <StatCart
+                value={dogs?.data?.length || 0}
+                label="Total Dogs"
+                color="text-white"
+              />
+              <StatCart
+                value={
+                  dogs?.data?.filter((d) => d.status === "RESCUED").length || 0
+                }
+                label="Rescued"
+                color="text-green-400"
+              />
+              <StatCart
+                value={
+                  dogs?.data?.filter((d) => d.status === "REPORTED").length || 0
+                }
+                label="Reported"
+                color="text-yellow-300"
+              />
+              <StatCart
+                value={
+                  dogs?.data?.filter((d) => d.status === "PICKED_UP").length ||
+                  0
+                }
+                label="Picked Up"
+                color="text-blue-400"
+              />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -149,7 +156,7 @@ export default function HomePage() {
                       className="animate-slide-up"
                       style={{ animationDelay: `${i * 80}ms` }}
                     >
-                      <DogCard {...dog} />
+                      <DogCard2 key={dog.id} dog={dog} />
                     </div>
                   ))}
           </div>

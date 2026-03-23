@@ -2,7 +2,6 @@ import { timeAgo } from "@/util/timeAgo";
 import { MapPin, Clock, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
-
 export function DogCard2({ dog }) {
   const s = DOG_STATUS[dog.status] || DOG_STATUS.REPORTED;
   return (
@@ -37,16 +36,22 @@ export function DogCard2({ dog }) {
           </span>
           <Link
             href={`/dogs/${dog.id}`}
-            className="text-xs text-[#1E3A5F] font-medium flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity hover:underline underline-offset-2"
+            className="text-xs font-medium flex items-center gap-0.5 
+  text-[#1E3A5F] 
+  opacity-100 md:opacity-0 
+  group-hover:opacity-100 
+  transition-opacity 
+  hover:underline 
+  underline-offset-2
+"
           >
-            View <ChevronRight size={12} />
+            View Details <ChevronRight size={12} />
           </Link>
         </div>
       </div>
     </div>
   );
 }
-
 
 function StatusBadge({ status, map }) {
   const s = map[status];
@@ -83,4 +88,3 @@ const DOG_STATUS = {
     bg: "bg-[#E8F1FB]",
   },
 };
-
