@@ -1,4 +1,3 @@
-# RescuePaws
 
 # Project Overview
 
