@@ -1,7 +1,9 @@
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export const getDogs = async () => {
   const token = localStorage.getItem("token");
 
-  const res = await fetch("http://localhost:8080/api/dogs", {
+  const res = await fetch(`${BASE_URL}/api/dogs`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -19,7 +21,7 @@ export const getDogs = async () => {
 export const deleteDog = async (id) => {
   const token = localStorage.getItem("token");
 
-  const res = await fetch(`http://localhost:8080/api/dogs/${id}`, {
+  const res = await fetch(`${BASE_URL}/api/dogs/${id}`, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -39,10 +41,9 @@ export const updateDogStatus = async (id, status) => {
   const token = localStorage.getItem("token");
 
   const formData = new FormData();
-
   formData.append("dog", JSON.stringify({ status }));
 
-  const res = await fetch(`http://localhost:8080/api/dogs/${id}/status`, {
+  const res = await fetch(`${BASE_URL}/api/dogs/${id}/status`, {
     method: "PUT",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -62,7 +63,7 @@ export const updateDogStatus = async (id, status) => {
 export const pickupDog = async (id) => {
   const token = localStorage.getItem("token");
 
-  const res = await fetch(`http://localhost:8080/api/dogs/${id}/pickup`, {
+  const res = await fetch(`${BASE_URL}/api/dogs/${id}/pickup`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -70,6 +71,7 @@ export const pickupDog = async (id) => {
   });
 
   const data = await res.json();
+
   if (!res.ok) {
     throw new Error(data.message || "Failed to pickup dog");
   }
@@ -88,6 +90,8 @@ export const reportDog = async ({
   gender,
   images,
 }) => {
+  const token = localStorage.getItem("token");
+
   const formData = new FormData();
 
   const dogPayload = {
@@ -101,17 +105,13 @@ export const reportDog = async ({
     gender,
   };
 
-  // Send JSON as STRING (important)
   formData.append("dog", JSON.stringify(dogPayload));
 
-  // Send files
   images.forEach((file) => {
     formData.append("images", file);
   });
 
-  const token = localStorage.getItem("token");
-
-  const res = await fetch("http://localhost:8080/api/dogs", {
+  const res = await fetch(`${BASE_URL}/api/dogs`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -119,5 +119,11 @@ export const reportDog = async ({
     body: formData,
   });
 
-  return res.json();
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.message || "Failed to report dog");
+  }
+
+  return data;
 };

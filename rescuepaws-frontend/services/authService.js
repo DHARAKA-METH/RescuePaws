@@ -1,5 +1,7 @@
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export const loginUser = async (data) => {
-  const res = await fetch("http://localhost:8080/auth/login", {
+  const res = await fetch(`${BASE_URL}/auth/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -9,9 +11,6 @@ export const loginUser = async (data) => {
 
   const result = await res.json();
 
-  console.log("loged data ------",result);
-  
-
   if (!res.ok) {
     throw new Error(result.message || "Login failed");
   }
@@ -20,8 +19,7 @@ export const loginUser = async (data) => {
 };
 
 export const registerUser = async (data) => {
-
-  const res = await fetch("http://localhost:8080/auth/register", {
+  const res = await fetch(`${BASE_URL}/auth/register`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
