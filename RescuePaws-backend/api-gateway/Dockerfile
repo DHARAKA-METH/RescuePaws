@@ -1,5 +1,21 @@
-FROM eclipse-temurin:17-jdk
+# Stage 1: Build
+FROM maven:3.9.9-eclipse-temurin-17 AS builder
 
-COPY target/api-gateway-0.0.1-SNAPSHOT.jar app.jar
+WORKDIR /app
 
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+COPY pom.xml .
+RUN mvn dependency:go-offline
+
+COPY src ./src
+RUN mvn clean install -DskipTests
+
+# Stage 2: Run
+FROM eclipse-temurin:17-jre
+
+WORKDIR /app
+
+COPY --from=builder /app/target/*SNAPSHOT.jar app.jar
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "app.jar"]

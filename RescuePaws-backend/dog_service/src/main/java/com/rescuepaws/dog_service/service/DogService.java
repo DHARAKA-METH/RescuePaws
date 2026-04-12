@@ -106,7 +106,7 @@ public class DogService {
                 .orElseThrow(() -> new ResourceNotFoundException("Dog not found"));
 
         // Check if already picked
-        if (dogPickupRepository.findByDogId(dogId).isPresent()) {
+        if (dogPickupRepository.existsByDog_Id(dogId)) {
             throw new ExceptionHandle("Dog already picked");
         }
 
